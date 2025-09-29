@@ -1,0 +1,95 @@
+const readline = require("readline");
+
+// Setup CLI interface
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+// Seat configuration
+const totalSeats = 10;
+let seats = Array(totalSeats).fill(false); // false = available, true = booked
+
+// Seat locks to prevent race conditions
+let seatLocks = Array(totalSeats).fill(false);
+
+// Function to display seats
+function displaySeats() {
+  console.log("\n--- Seat Status ---");
+  seats.forEach((seat, index) => {
+    let status = seat ? "[X]" : "[ ]"; // X = booked
+    process.stdout.write(`Seat ${index + 1} ${status}\t`);
+    if ((index + 1) % 5 === 0) console.log();
+  });
+  console.log();
+}
+
+// Attempt to book a seat
+function bookSeat(seatNumber, callback) {
+  seatNumber--; // convert to 0-based index
+
+  if (seatNumber < 0 || seatNumber >= totalSeats) {
+    console.log("❌ Invalid seat number.");
+    return callback();
+  }
+
+  // Check if seat is already locked
+  if (seatLocks[seatNumber]) {
+    console.log("⚠️ Seat is being booked by someone else. Try again.");
+    return callback();
+  }
+
+  // Lock the seat
+  seatLocks[seatNumber] = true;
+
+  // Simulate async booking (like database operation)
+  setTimeout(() => {
+    if (seats[seatNumber]) {
+      console.log(`❌ Seat ${seatNumber + 1} is already booked.`);
+    } else {
+      seats[seatNumber] = true;
+      console.log(`✅ Seat ${seatNumber + 1} successfully booked!`);
+    }
+
+    // Release the lock
+    seatLocks[seatNumber] = false;
+
+    callback();
+  }, Math.random() * 1000 + 500); // random delay to simulate concurrency
+}
+
+// CLI menu
+function showMenu() {
+  console.log("\n=== Ticket Booking System ===");
+  console.log("1. View Seats");
+  console.log("2. Book Seat");
+  console.log("3. Exit");
+
+  rl.question("Enter your choice: ", (choice) => {
+    switch (choice.trim()) {
+      case "1":
+        displaySeats();
+        showMenu();
+        break;
+
+      case "2":
+        displaySeats();
+        rl.question("Enter seat number to book: ", (seatNum) => {
+          bookSeat(parseInt(seatNum), showMenu);
+        });
+        break;
+
+      case "3":
+        console.log("Exiting... Goodbye!");
+        rl.close();
+        break;
+
+      default:
+        console.log("❌ Invalid choice.");
+        showMenu();
+    }
+  });
+}
+
+// Start the CLI app
+showMenu();
