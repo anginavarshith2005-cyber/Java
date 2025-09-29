@@ -1,0 +1,91 @@
+// Import the readline module for CLI input/output
+const readline = require("readline");
+
+// Create interface for input/output
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+// Data store (in-memory array)
+let tasks = [];
+
+// Function to display the menu
+function showMenu() {
+  console.log("\n=== Task Manager CLI ===");
+  console.log("1. View Tasks");
+  console.log("2. Add Task");
+  console.log("3. Remove Task");
+  console.log("4. Exit");
+  rl.question("Enter your choice: ", handleMenu);
+}
+
+// Function to handle user input
+function handleMenu(choice) {
+  switch (choice.trim()) {
+    case "1":
+      viewTasks();
+      break;
+    case "2":
+      addTask();
+      break;
+    case "3":
+      removeTask();
+      break;
+    case "4":
+      console.log("Exiting... Goodbye!");
+      rl.close();
+      break;
+    default:
+      console.log("❌ Invalid choice. Try again.");
+      showMenu();
+  }
+}
+
+// View all tasks
+function viewTasks() {
+  console.log("\n--- Task List ---");
+  if (tasks.length === 0) {
+    console.log("No tasks available.");
+  } else {
+    tasks.forEach((task, index) => {
+      console.log(`${index + 1}. ${task}`);
+    });
+  }
+  showMenu();
+}
+
+// Add a new task
+function addTask() {
+  rl.question("Enter new task: ", (task) => {
+    if (task.trim() === "") {
+      console.log("❌ Task cannot be empty.");
+    } else {
+      tasks.push(task);
+      console.log(`✅ Task added: "${task}"`);
+    }
+    showMenu();
+  });
+}
+
+// Remove a task
+function removeTask() {
+  if (tasks.length === 0) {
+    console.log("❌ No tasks to remove.");
+    return showMenu();
+  }
+
+  rl.question("Enter task number to remove: ", (num) => {
+    const index = parseInt(num) - 1;
+    if (isNaN(index) || index < 0 || index >= tasks.length) {
+      console.log("❌ Invalid task number.");
+    } else {
+      const removed = tasks.splice(index, 1);
+      console.log(`🗑️ Removed task: "${removed}"`);
+    }
+    showMenu();
+  });
+}
+
+// Start the app
+showMenu();
