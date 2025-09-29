@@ -1,0 +1,61 @@
+// ==================== Base Class ====================
+class Person {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  introduce() {
+    return `Hi, I'm ${this.name} and I'm ${this.age} years old.`;
+  }
+}
+
+// ==================== Subclass: Student ====================
+class Student extends Person {
+  constructor(name, age, grade) {
+    super(name, age); // Call parent constructor
+    this.grade = grade;
+  }
+
+  study() {
+    return `${this.name} is studying for grade ${this.grade}.`;
+  }
+
+  // Overriding the introduce method
+  introduce() {
+    return `Hello, I'm ${this.name}, a student in grade ${this.grade}.`;
+  }
+}
+
+// ==================== Subclass: Teacher ====================
+class Teacher extends Person {
+  constructor(name, age, subject) {
+    super(name, age); // Call parent constructor
+    this.subject = subject;
+  }
+
+  teach() {
+    return `${this.name} is teaching ${this.subject}.`;
+  }
+
+  // Overriding the introduce method
+  introduce() {
+    return `Good day, I'm ${this.name}, and I teach ${this.subject}.`;
+  }
+}
+
+// ==================== Usage ====================
+const student1 = new Student("Alice", 20, "A");
+const teacher1 = new Teacher("Mr. John", 40, "Mathematics");
+
+console.log("--- Introductions ---");
+console.log(student1.introduce()); // Overridden introduce from Student
+console.log(teacher1.introduce()); // Overridden introduce from Teacher
+
+console.log("\n--- Specialized Methods ---");
+console.log(student1.study());     // Student-specific method
+console.log(teacher1.teach());     // Teacher-specific method
+
+console.log("\n--- Base Class Access ---");
+const person1 = new Person("Bob", 30);
+console.log(person1.introduce());  // Base class introduce
