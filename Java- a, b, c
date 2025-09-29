@@ -1,0 +1,159 @@
+import java.io.*;
+import java.util.*;
+
+// ------------------ Part B: Student Class ------------------
+class Student implements Serializable {
+    int id;
+    String name;
+
+    Student(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+}
+
+// ------------------ Part C: Employee Class ------------------
+class Employee implements Serializable {
+    int id;
+    String name;
+    double salary;
+
+    Employee(int id, String name, double salary) {
+        this.id = id;
+        this.name = name;
+        this.salary = salary;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Name: " + name + ", Salary: " + salary;
+    }
+}
+
+// ------------------ Main Class ------------------
+public class CombinedProgram {
+    static final String STUDENT_FILE = "student.ser";
+    static final String EMPLOYEE_FILE = "employees.dat";
+
+    // ------------------ Part A: Autoboxing & Unboxing ------------------
+    public static void partA() {
+        System.out.println("\n--- Part A: Sum Using Autoboxing/Unboxing ---");
+        Integer num1 = 10; // autoboxing
+        Integer num2 = 20;
+        int sum = num1 + num2; // unboxing
+        System.out.println("First number: " + num1);
+        System.out.println("Second number: " + num2);
+        System.out.println("Sum: " + sum);
+    }
+
+    // ------------------ Part B: Student Serialization ------------------
+    public static void partB() {
+        System.out.println("\n--- Part B: Serialization/Deserialization of Student ---");
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(STUDENT_FILE))) {
+            Student s1 = new Student(101, "Varun");
+            out.writeObject(s1);
+            System.out.println("Student object serialized.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(STUDENT_FILE))) {
+            Student s2 = (Student) in.readObject();
+            System.out.println("Student object deserialized.");
+            System.out.println("ID: " + s2.id + ", Name: " + s2.name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ------------------ Part C: Employee Management ------------------
+    public static void addEmployee(Employee emp) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(EMPLOYEE_FILE, true)) {
+            @Override
+            protected void writeStreamHeader() throws IOException {}
+        }) {
+            out.writeObject(emp);
+            System.out.println("Employee added successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void displayEmployees() {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(EMPLOYEE_FILE))) {
+            while (true) {
+                Employee emp = (Employee) in.readObject();
+                System.out.println(emp);
+            }
+        } catch (EOFException e) {
+            // End of file reached
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ------------------ Main Menu ------------------
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\n===== Combined Program Menu =====");
+            System.out.println("1. Part A - Autoboxing & Unboxing Sum");
+            System.out.println("2. Part B - Student Serialization/Deserialization");
+            System.out.println("3. Part C - Employee Management System");
+            System.out.println("4. Exit");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    partA();
+                    break;
+                case 2:
+                    partB();
+                    break;
+                case 3:
+                    int subChoice;
+                    do {
+                        System.out.println("\n--- Employee Management ---");
+                        System.out.println("1. Add Employee");
+                        System.out.println("2. Display Employees");
+                        System.out.println("3. Back to Main Menu");
+                        System.out.print("Enter choice: ");
+                        subChoice = sc.nextInt();
+
+                        switch (subChoice) {
+                            case 1:
+                                System.out.print("Enter ID: ");
+                                int id = sc.nextInt();
+                                sc.nextLine(); // consume newline
+                                System.out.print("Enter Name: ");
+                                String name = sc.nextLine();
+                                System.out.print("Enter Salary: ");
+                                double salary = sc.nextDouble();
+                                addEmployee(new Employee(id, name, salary));
+                                break;
+                            case 2:
+                                System.out.println("Employee List:");
+                                displayEmployees();
+                                break;
+                            case 3:
+                                System.out.println("Returning to main menu...");
+                                break;
+                            default:
+                                System.out.println("Invalid choice.");
+                        }
+                    } while (subChoice != 3);
+                    break;
+                case 4:
+                    System.out.println("Program terminated.");
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        } while (choice != 4);
+
+        sc.close();
+    }
+}
